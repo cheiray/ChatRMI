@@ -19,6 +19,12 @@ public class Client_chat_impl  extends java.rmi.server.UnicastRemoteObject imple
         //return 1;
     }
 
+    @Override
+    public String getName() throws RemoteException {
+        // TODO Auto-generated method stub
+        return this.pseudo;
+    }
+
 
     
 }
