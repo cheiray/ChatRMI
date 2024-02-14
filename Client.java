@@ -4,20 +4,28 @@ import java.util.Scanner;
 
 
 public class Client {
+
     public static void main(String [] args)
     {
         try {
-            if(args.length < 1)
+           /*  if(args.length < 1)
             {
                 System.out.println("Usage: java Client <rmiregistry>");
                 return;
-            }
+            }*/
 
-            String host = args[0];
+            String host = "0";//args[0];
 
             Registry registry = LocateRegistry.getRegistry(host);
 
             Chat chat = (Chat) registry.lookup("ChatService");
+
+            // we also need to register the current client so the remote server gain access to it during the registering process
+            Client_chat client = new Client_chat_impl("test"); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
+            if (chat == null || client == null) {
+                System.out.println("Error: chat or client object null");
+            }
+            chat.connect(client);
 
             String enter = "";
             Scanner scanner = new Scanner(System.in);

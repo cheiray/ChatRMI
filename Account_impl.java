@@ -1,3 +1,4 @@
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 public class Account_impl implements Account {
@@ -25,11 +26,11 @@ public class Account_impl implements Account {
     @Override
     public String send(String msg) throws RemoteException
     {
-        
+        return null;
     }
 
     public int disconnect() throws RemoteException 
     {
-
+        return 0;
     }
 }
