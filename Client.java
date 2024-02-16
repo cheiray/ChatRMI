@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
@@ -24,6 +25,8 @@ public class Client {
                 return;
             }*/
 
+           
+
             String host = "0";//args[0];
 
             Registry registry = LocateRegistry.getRegistry(host);
@@ -36,6 +39,17 @@ public class Client {
                 System.out.println("Error: chat or client object null");
             }
             chat.connect(client);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                // Code to execute when the program is shutting down
+                try {
+                    chat.disconnect(client);
+                } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                System.out.println("Shutting down...");
+                // Additional cleanup or tasks can be performed here
+            }));
             List<ChatMessage> history = chat.getHistory();
             displayChatHistory(history);
 

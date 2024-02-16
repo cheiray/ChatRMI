@@ -21,7 +21,7 @@ public class Client_chat_impl  extends java.rmi.server.UnicastRemoteObject imple
     @Override
     public String getName() throws RemoteException {
         // TODO 
-        // We shouldn't rely on the user giving us his pseudonym as he can easily change it
+        // We shouldn't rely on the user giving us his pseudonym as he can easily change it it's not trustable
         return this.pseudo;
     }
 

@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -8,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Chat_impl implements Chat{
-    ArrayList<String> history;
+    ArrayList<ChatMessage> historyBuffer; // this is used to buffer the current history, it won't be saved in the history file until the next server shutdown for performance reason
     ArrayList<Client_chat> clients;
 
     private static final String HISTORY_FILE_PATH = "chat_history.txt";
@@ -22,7 +24,7 @@ public class Chat_impl implements Chat{
 
     public Chat_impl()
     {
-        history = new ArrayList<>();
+        historyBuffer = new ArrayList<>();
         clients = new ArrayList<>();
     }
     // This function is used to "broadcast" an incoming message from a client to every other clients
@@ -33,7 +35,8 @@ public class Chat_impl implements Chat{
             disconnect(currentClient);
             return;// replace return with clients.remove(currentClients))
         }
-        history.add(msg);
+        //history.add(getTime() +" - user: '"+ currentClient.getName()+"' said : "+msg);
+        historyBuffer.add(new ChatMessage(currentClient.getName(), msg, getTime()));
         System.out.println(getTime() +" - user: '"+ currentClient.getName()+"' said : "+msg);
         for(Client_chat client : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
@@ -82,15 +85,32 @@ public class Chat_impl implements Chat{
              BufferedReader br = new BufferedReader(reader)) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(" ", 3);
-                String timestamp = parts[0];
-                String sender = parts[1];
-                String message = parts[2];
-                history.add(new ChatMessage(sender, message, timestamp));
+                int timestampEndIndex = line.indexOf(" - ");
+                String timestamp = line.substring(0, timestampEndIndex);
+
+                int usernameEndIndex = line.indexOf(": ");
+                String username = line.substring(timestampEndIndex + 3, usernameEndIndex);
+
+                String message = line.substring(usernameEndIndex + 2);
+                history.add(new ChatMessage(username, message, timestamp));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        history.addAll(this.historyBuffer);
         return history;
     }
+
+    public synchronized void saveMessages() throws RemoteException {
+        try (FileWriter writer = new FileWriter(HISTORY_FILE_PATH, true);
+             BufferedWriter bw = new BufferedWriter(writer)) {
+            for (ChatMessage message : historyBuffer) {
+                bw.write(message.getTimestamp() + " - " + message.getAuthor() + ": " + message.getMessage());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -14,11 +14,11 @@ public class ChatMessage implements Serializable {
     }
 
     // Getters and setters
-    public String getSender() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setSender(String sender) {
+    public void setAuthor(String sender) {
         this.author = sender;
     }
 
@@ -40,6 +40,6 @@ public class ChatMessage implements Serializable {
 
     @Override
     public String toString() {
-        return "ChatMessage [author=" + author + ", message=" + message + ", time=" + time + "]";
+        return   time + " - " + author + ": " + message;
     }
 }
