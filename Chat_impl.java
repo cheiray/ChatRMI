@@ -1,11 +1,17 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Chat_impl implements Chat{
     ArrayList<String> history;
     ArrayList<Client_chat> clients;
+
+    private static final String HISTORY_FILE_PATH = "chat_history.txt";
 
     public String getTime(){
         LocalDateTime now = LocalDateTime.now();
@@ -24,6 +30,7 @@ public class Chat_impl implements Chat{
     public void newMsg(Client_chat currentClient,String msg) throws RemoteException {
         if(msg.equals("Quit()"))
         {
+            disconnect(currentClient);
             return;// replace return with clients.remove(currentClients))
         }
         history.add(msg);
@@ -66,5 +73,24 @@ public class Chat_impl implements Chat{
         }
         clients.add(client);
         //return 1;
+    }
+
+    @Override
+    public synchronized List<ChatMessage> getHistory() throws RemoteException {
+       List<ChatMessage> history = new ArrayList<>();
+        try (FileReader reader = new FileReader(HISTORY_FILE_PATH);
+             BufferedReader br = new BufferedReader(reader)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ", 3);
+                String timestamp = parts[0];
+                String sender = parts[1];
+                String message = parts[2];
+                history.add(new ChatMessage(sender, message, timestamp));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return history;
     }
 }

@@ -1,9 +1,19 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 import java.util.Scanner;
 
 
 public class Client {
+
+    public static void displayChatHistory(List<ChatMessage> chatHistory) {
+        for (ChatMessage message : chatHistory) {
+            System.out.println(message);
+        }
+    }
 
     public static void main(String [] args)
     {
@@ -26,6 +36,8 @@ public class Client {
                 System.out.println("Error: chat or client object null");
             }
             chat.connect(client);
+            List<ChatMessage> history = chat.getHistory();
+            displayChatHistory(history);
 
             String enter = "";
             Scanner scanner = new Scanner(System.in);
