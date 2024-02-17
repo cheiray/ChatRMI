@@ -25,17 +25,17 @@ public class Client {
                 return;
             }*/
 
-           
-
-            String host = "0";//args[0];
+            int host = 0;//args[0];
 
             Registry registry = LocateRegistry.getRegistry(host);
 
             Chat chat = (Chat) registry.lookup("ChatService");
 
             // we also need to pass the reference of the current client so the remote server gain access to it during the registering process
-            Client_chat client = new Client_chat_impl("test"); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
-            if (chat == null || client == null) {
+
+            GUI gui = new GUI(chat);
+            Client_chat client = new Client_chat_impl(gui.promptForName()); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
+            if (chat == null) {
                 System.out.println("Error: chat or client object null");
             }
             chat.connect(client);
@@ -50,8 +50,8 @@ public class Client {
                 System.out.println("Shutting down...");
                 // Additional cleanup or tasks can be performed here
             }));
-            List<ChatMessage> history = chat.getHistory();
-            displayChatHistory(history);
+            //List<ChatMessage> history = chat.getHistory();
+            //displayChatHistory(history);
 
             String enter = "";
             Scanner scanner = new Scanner(System.in);
