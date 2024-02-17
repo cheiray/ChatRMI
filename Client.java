@@ -27,7 +27,7 @@ public class Client {
 
            
 
-            String host = "0";//args[0];
+            int host = 0;//args[0];
 
             Registry registry = LocateRegistry.getRegistry(host);
 
