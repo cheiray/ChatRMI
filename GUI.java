@@ -13,6 +13,7 @@ public class GUI extends JFrame {
     private final JButton sendButton;
     private String pseudo;
     Client_chat_impl clientImpl;
+    Client_chat clientObject;
 
     public GUI(Chat chat, Client_chat client) throws RemoteException {
         super("Chat RMI");
@@ -59,6 +60,10 @@ public class GUI extends JFrame {
             addHistory(chat.getHistory(client));
 
         setVisible(true);
+    }
+
+    public void refreshHistory() throws RemoteException{
+        addHistory(chat.getHistory(this.clientImpl));
     }
 
     public String reconnect() throws RemoteException{

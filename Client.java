@@ -46,7 +46,7 @@ public class Client {
                 connexionStatus = gui.reconnect();
                 System.out.println(connexionStatus);
             }
-                
+                gui.refreshHistory();
             
             
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
