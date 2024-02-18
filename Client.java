@@ -33,13 +33,22 @@ public class Client {
             Chat chat = (Chat) registry.lookup("ChatService");
 
             // we also need to pass the reference of the current client so the remote server gain access to it during the registering process
-            client = new Client_chat_impl(); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
+            client = new Client_chat_impl();
             GUI gui = new GUI(chat,client);
              
             if (chat == null) {
                 System.out.println("Error: chat or client object null");
             }
-            chat.connect(client);
+            String connexionStatus = chat.connect(client);
+            System.out.println(connexionStatus);
+            
+            while (!connexionStatus.equals("success")) {
+                connexionStatus = gui.reconnect();
+                System.out.println(connexionStatus);
+            }
+                
+            
+            
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 // Code to execute when the program is shutting down
                 try {

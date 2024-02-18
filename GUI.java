@@ -53,15 +53,34 @@ public class GUI extends JFrame {
 
         add(scrollPane, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
-
-        addHistory(chat.getHistory());
+        List<ChatMessage> messages = chat.getHistory(client);
+        
+        if(messages!=null)
+            addHistory(chat.getHistory(client));
 
         setVisible(true);
     }
 
-    public String promptForName() {
-        return JOptionPane.showInputDialog(this, "Enter your pseudo:");
+    public String reconnect() throws RemoteException{
+        String status = "false";
+        String name = JOptionPane.showInputDialog(this, "Name already in use, reconnect with a different name!");
+        if (name != null) {
+            clientImpl.setPseudo(name);
+            status = chat.connect(clientImpl);
+            if(status.equals("success"))
+                addHistory(chat.getHistory(this.clientImpl));
+            
+        }
+        
+        return status;
     }
+
+    public String promptForName() {
+        String name = JOptionPane.showInputDialog(this, "Enter your pseudo:");
+        this.clientImpl.setPseudo(name);
+        return name;
+    }
+
 
     public void setPseudo(String pseudo) {
         this.pseudo = pseudo;

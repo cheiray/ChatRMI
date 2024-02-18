@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 public class Chat_impl implements Chat{
     ArrayList<ChatMessage> historyBuffer; // this is used to buffer the current history, it won't be saved in the history file until the next server shutdown for performance reason
     ArrayList<Client_chat> clients;
+    
 
     private static final String HISTORY_FILE_PATH = "chat_history.txt";
 
@@ -30,6 +31,8 @@ public class Chat_impl implements Chat{
     // This function is used to "broadcast" an incoming message from a client to every other clients
     @Override
     public void newMsg(Client_chat currentClient,String msg) throws RemoteException {
+        if (!clients.contains(currentClient))
+            return;
         if(msg.equals("Quit()"))
         {
             disconnect(currentClient);
@@ -48,10 +51,17 @@ public class Chat_impl implements Chat{
         }
     }
 
-    
+    private void sendClientsNotification(String notification)throws RemoteException {
+        for(Client_chat aclient : clients){
+            aclient.receiveNotification(notification);
+        }
+        System.out.println(notification);
+    }
 
     @Override
     public void disconnect(Client_chat client) throws RemoteException {
+        if (!clients.contains(client))
+            return;
         // TODO Auto-generated method stub
         clients.remove(client);
         for(Client_chat aclient : clients){
@@ -65,22 +75,28 @@ public class Chat_impl implements Chat{
     }
 
     @Override
-    public void connect(Client_chat client) throws RemoteException {
+    public String connect(Client_chat client) throws RemoteException {
         // Remember to add the login verifications to accept or refuse the incoming connexion
+        int nbrSameUser = 0;
         for(Client_chat aclient : clients){
-            // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
-            if(client != aclient)
-                aclient.receiveNotification(getTime() +" - user: '"+ client.getName()+"' has joined the chat");
-            else
-                client.receiveNotification("You have joined the chat");
-            System.out.println(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
+            if(client.getName().equals(aclient.getName())){
+                nbrSameUser++;
+            }
         }
-        clients.add(client);
-        //return 1;
+        if(nbrSameUser==0){
+            sendClientsNotification(getTime() +" - user: '"+ client.getName()+"' has joined the chat");
+            clients.add(client);
+            return "success";
+        }
+        
+            return "false";
     }
 
+    // this method can be used by any objects, it doesn't require authentification
     @Override
-    public synchronized List<ChatMessage> getHistory() throws RemoteException {
+    public synchronized List<ChatMessage> getHistory(Client_chat client) throws RemoteException {
+        if (!clients.isEmpty()&&!clients.contains(client))
+            return null;
        List<ChatMessage> history = new ArrayList<>();
         try (FileReader reader = new FileReader(HISTORY_FILE_PATH);
              BufferedReader br = new BufferedReader(reader)) {
