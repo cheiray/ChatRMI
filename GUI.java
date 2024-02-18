@@ -6,88 +6,78 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class GUI extends JFrame
-{
-    private JScrollPane jScrollPane;
-    private JTextField jTextFieldMsgInput;
-    private JTextArea jTextAreaChat;
-
+public class GUI extends JFrame {
     private final Chat chat;
+    private final JTextArea chatTextArea;
+    private final JTextField messageTextField;
+    private final JButton sendButton;
     private String pseudo;
+    Client_chat_impl clientImpl;
 
-    private Client_chat client;
-
-
-    public GUI(Chat chat)
-    {
-        super("CHAT RMI");
-
+    public GUI(Chat chat, Client_chat client) throws RemoteException {
+        super("Chat RMI");
         this.chat = chat;
+        this.clientImpl = (Client_chat_impl) client;
+        clientImpl.setPseudo(this.promptForName());
+        clientImpl.setGui(this);
 
-        setLocationRelativeTo(null);
+        setSize(600, 400);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(720, 480);
-        setResizable(false);
+        setLocationRelativeTo(null);
 
-        initiateComponents();
+        chatTextArea = new JTextArea();
+        chatTextArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(chatTextArea);
 
-        setVisible(true);
-    }
-
-    private void downloadHistory()
-    {
-        try {
-            List<ChatMessage> history = chat.getHistory();
-            for(ChatMessage msg: history){
-                inputChat(msg);
-            }
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void initiateComponents()
-    {
-        jTextFieldMsgInput = new JTextField();
-        jTextAreaChat = new JTextArea();
-        jScrollPane = new JScrollPane(jTextAreaChat);
-
-        jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jTextAreaChat.setLineWrap(true);
-
-        jTextFieldMsgInput.addActionListener(new ActionListener() {
+        messageTextField = new JTextField(30);
+        sendButton = new JButton("Send");
+        sendButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    chat.newMsg(client, jTextFieldMsgInput.getText());
-                    jTextFieldMsgInput.setText("");
-                } catch (RemoteException ex) {
-                    throw new RuntimeException(ex);
+                String message = messageTextField.getText();
+                if (!message.isEmpty()) {
+                    try {
+                        System.out.println(client+" "+message);
+                        chat.newMsg(client, message);
+                        messageTextField.setText("");
+                    } catch (RemoteException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
 
-        getContentPane().setLayout(new BorderLayout());
+        JPanel inputPanel = new JPanel();
+        inputPanel.add(messageTextField);
+        inputPanel.add(sendButton);
 
-        getContentPane().add(jScrollPane, BorderLayout.CENTER);
-        getContentPane().add(jTextFieldMsgInput, BorderLayout.SOUTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(inputPanel, BorderLayout.SOUTH);
 
+        addHistory(chat.getHistory());
+
+        setVisible(true);
+    }
+
+    public String promptForName() {
+        return JOptionPane.showInputDialog(this, "Enter your pseudo:");
+    }
+
+    public void setPseudo(String pseudo) {
+        this.pseudo = pseudo;
+    }
+
+    public void addMessage(ChatMessage message) {
+        chatTextArea.append(message.toString() + "\n");
+    }
+
+    public void addNotification(String message) {
+        chatTextArea.append(message.toString() + "\n");
+    }
+
+    public void addHistory(List<ChatMessage> history) {
+        for (ChatMessage message : history) {
+            addMessage(message);
         }
-
-    public String promptForName()
-    {
-        return JOptionPane.showInputDialog(this, "Entrez votre pseudo", JOptionPane.INPUT_VALUE_PROPERTY);
     }
-
-    private void addClient(Client_chat client)
-    {
-        this.client = client;
-    }
-
-    public void inputChat(ChatMessage msg)
-    {
-        jTextAreaChat.append(msg.getTimestamp()+" "+msg.getAuthor()+": "+msg.getMessage()+"\n\n");
-        jScrollPane.getVerticalScrollBar().setValue(jScrollPane.getVerticalScrollBar().getMaximum());
-    }
-
 }

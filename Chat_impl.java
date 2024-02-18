@@ -36,14 +36,15 @@ public class Chat_impl implements Chat{
             return;// replace return with clients.remove(currentClients))
         }
         //history.add(getTime() +" - user: '"+ currentClient.getName()+"' said : "+msg);
-        historyBuffer.add(new ChatMessage(currentClient.getName(), msg, getTime()));
+        ChatMessage theMessage = new ChatMessage(currentClient.getName(), msg, getTime());
+        historyBuffer.add(theMessage);
         System.out.println(getTime() +" - user: '"+ currentClient.getName()+"' said : "+msg);
         for(Client_chat client : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
             if(currentClient != client)
-                client.receiveMessage(getTime() +" - user: '"+ currentClient.getName()+"' said : "+msg);
+                client.receiveMessage(theMessage);
             else
-                client.receiveMessage(getTime() +" - You have said : "+msg);
+                client.receiveMessage(theMessage);
         }
     }
 
@@ -56,7 +57,7 @@ public class Chat_impl implements Chat{
         for(Client_chat aclient : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
             if(client != aclient)
-                aclient.receiveMessage(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has left the chat");
+                aclient.receiveNotification(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has left the chat");
         }
         System.out.println(this.getTime() +" - user: '"+ client.getName()+"' has left the chat");
         
@@ -69,9 +70,9 @@ public class Chat_impl implements Chat{
         for(Client_chat aclient : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
             if(client != aclient)
-                aclient.receiveMessage(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
+                aclient.receiveNotification(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
             else
-                client.receiveMessage("You have joined the chat");
+                client.receiveNotification("You have joined the chat");
             System.out.println(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
         }
         clients.add(client);

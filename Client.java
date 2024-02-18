@@ -9,6 +9,7 @@ import java.util.Scanner;
 
 
 public class Client {
+    private static Client_chat client;
 
     public static void displayChatHistory(List<ChatMessage> chatHistory) {
         for (ChatMessage message : chatHistory) {
@@ -32,9 +33,9 @@ public class Client {
             Chat chat = (Chat) registry.lookup("ChatService");
 
             // we also need to pass the reference of the current client so the remote server gain access to it during the registering process
-
-            GUI gui = new GUI(chat);
-            Client_chat client = new Client_chat_impl(gui.promptForName()); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
+            client = new Client_chat_impl(); // Maybe we should just make the Client class inherit the Client_chat_impl class as we don't really benefit from this.
+            GUI gui = new GUI(chat,client);
+             
             if (chat == null) {
                 System.out.println("Error: chat or client object null");
             }
