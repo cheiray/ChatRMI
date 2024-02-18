@@ -57,9 +57,9 @@ public class Chat_impl implements Chat{
         for(Client_chat aclient : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
             if(client != aclient)
-                aclient.receiveNotification(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has left the chat");
+                aclient.receiveNotification(getTime() +" - user: '"+ client.getName()+"' has left the chat");
         }
-        System.out.println(this.getTime() +" - user: '"+ client.getName()+"' has left the chat");
+        System.out.println(getTime() +" - user: '"+ client.getName()+"' has left the chat");
         
         //return 1;
     }
@@ -70,7 +70,7 @@ public class Chat_impl implements Chat{
         for(Client_chat aclient : clients){
             // ADD THE CHECK THAT IT IS NOT THE CURRENT CLIENT SENDING THE MESSAGE
             if(client != aclient)
-                aclient.receiveNotification(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
+                aclient.receiveNotification(getTime() +" - user: '"+ client.getName()+"' has joined the chat");
             else
                 client.receiveNotification("You have joined the chat");
             System.out.println(java.time.LocalDateTime.now() +" - user: '"+ client.getName()+"' has joined the chat");
